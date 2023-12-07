@@ -83,7 +83,8 @@ RUN apt-get update \
     libjpeg-dev \
     libilmbase-dev \
     libxerces-c-dev \
-    libboost-all-dev \
+    libboost-all-dev \    
+    libboost-python-dev \
     libopenexr-dev \
     libglewmx-dev \
     libxxf86vm-dev \
@@ -108,21 +109,22 @@ WORKDIR /mitsuba-ppg
 RUN git clone https://github.com/cfreude/practical-path-guiding-fork.git
 #RUN cd mitsuba && git checkout 2f9bf64cb49c2b4c1c945e73c50c1c0da9507add && cd ..
 
-ENV MITSUBA_DIR /mitsuba-ppg/practical-path-guiding-fork/mitsuba
+ARG MITSUBA_DIR
+ENV MITSUBA_DIR=${MITSUBA_DIR:-/mitsuba-ppg/practical-path-guiding-fork/mitsuba}
 
 WORKDIR /mitsuba-ppg/practical-path-guiding-fork/mitsuba/
 
-COPY ./config-linux-gcc.py $(MITSUBA_DIR)/build/
+COPY ./config-linux-gcc.py $MITSUBA_DIR/build
 
 # TODO: NOT USED FOR SOME REASON?!
-COPY ./SConscript.configure $(MITSUBA_DIR)/build/
+COPY ./SConscript.configure $MITSUBA_DIR/build
 
 RUN cp build/config-linux-gcc.py config.py && scons
 
 ### set up Mitsuba lib and bin paths, like in Mitsuba's own setpath.sh
-ENV PYTHONPATH $(MITSUBA_DIR)/dist/python:$(MITSUBA_DIR)/dist/python/2.7:
-ENV PATH $(MITSUBA_DIR)/wrapper:$(MITSUBA_DIR)/dist:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ENV LD_LIBRARY_PATH $(MITSUBA_DIR)/dist:
+ENV PYTHONPATH  $MITSUBA_DIR/dist/python: $MITSUBA_DIR/dist/python/2.7:
+ENV PATH  $MITSUBA_DIR/wrapper: $MITSUBA_DIR/dist:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV LD_LIBRARY_PATH  $MITSUBA_DIR/dist:
 
 ### configure headless X server
 ### this allows the Mitsba scene importer "mtsimport" to use OpenGL for triagle computations
@@ -130,6 +132,6 @@ ENV LD_LIBRARY_PATH $(MITSUBA_DIR)/dist:
 #ENV DISPLAY :0
 
 ### wrapper to start headless xserver when using mtsimport
-COPY ./mtsimport-headless.sh $(MITSUBA_DIR)/wrapper/mtsimport
+COPY ./mtsimport-headless.sh $MITSUBA_DIR/wrapper/mtsimport
 
 #CMD ["bash"]
