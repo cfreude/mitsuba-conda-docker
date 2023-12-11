@@ -9,7 +9,7 @@ if configFile == None:
 
 configFile = os.path.normpath(os.path.join(os.path.dirname(os.getcwd()), configFile))
 
-print("Using !!!!!!!!!!!!!! configuation file \"%s\"" % configFile)
+print("Using Qt5 configuation file \"%s\"" % configFile)
 
 AddOption("--parallelize", dest="parallelize", action='store_true', help='Parallelize to the available number of cores?')
 parallelize = GetOption('parallelize')
@@ -208,7 +208,7 @@ for ver in python_versions:
                 continue
         includePath = env[key]
         env.Append(CPPPATH=includePath)
-        if conf.CheckCXXHeader('pyconfig.h'):
+        if False and conf.CheckCXXHeader('pyconfig.h'):
                 hasPython += [ ver ]
         else:
                 print 'Python ' + ver + ' is missing: not building wrappers'
